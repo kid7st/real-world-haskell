@@ -46,8 +46,8 @@ flatten (x `Union` _)   = flatten x
 flatten other           = other
 
 punctuate :: Doc -> [Doc] -> [Doc]
-punctuate p []      = []
-punctuate p [d]     = [d]
+punctuate _ []      = []
+punctuate _ [d]     = [d]
 punctuate p (d:ds)  = (d <> p) : punctuate p ds
 
 concat :: [[a]] -> [a]
@@ -67,9 +67,9 @@ compact x = transform [x]
 
 fits :: Int -> String -> Bool
 w `fits` _ | w < 0  = False
-w `fits` ""         = True
-w `fits` ('\n':_)   = True
-w `fits` (c:cs)     = (w - 1) `fits` cs
+_ `fits` ""         = True
+_ `fits` ('\n':_)   = True
+w `fits` (_:cs)     = (w - 1) `fits` cs
 
 pretty :: Int -> Doc -> String
 pretty width x = best 0 [x]
@@ -107,13 +107,12 @@ nest indent doc = best 0 [0] [doc]
       case d of
         Empty -> Empty <> best col nestStack ds
         Char c -> Char c <> best (col + 1) newNestStack ds
-          where newNestStack  = if c == '{' || c == '['
-                                then (col + indent):nestStack
-                                else if c == '}' || c == ']' then tail nestStack
-                                else nestStack
+          where newNestStack 
+                  | c == '{' || c == '[' = (col + indent):nestStack
+                  | c == '}' || c == ']' = tail nestStack
+                  | otherwise = nestStack
         Text s -> Text s <> best (col + length s) nestStack ds
         Line -> Line <> Text (replicate (head nestStack) ' ') <> best 0 nestStack ds
         a `Concat` b -> best col nestStack (a:b:ds)
         a `Union` b -> best col nestStack (a:ds) `Union` best col nestStack (b:ds)
-    best col nestStack [] = Empty
-
+    best _ _ [] = Empty

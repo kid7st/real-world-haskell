@@ -1,4 +1,4 @@
-module Ch4 (safeHead, safeTail, safeLast, safeInit, splitWith, asInt_fold, asInt_either, concat', takeWhile', groupBy, unlines') where
+module Ch4 (safeHead, safeTail, safeLast, safeInit, splitWith, asIntFold, asIntEither, concat', takeWhile', groupBy, unlines') where
 
 import Data.Char
 import Data.List (foldl')
@@ -36,25 +36,25 @@ splitWith predicate xs = first : splitWith predicate (safeLast second)
 
 -- 1. Use a fold (choosing the appropriate fold will make your code much simpler) to rewrite and improve upon the asInt function from the earlier sectionExplicit Recursion.
 -- 2. Extend your function to handle the following kinds of exceptional conditions by calling error
-asInt_fold :: String -> Int
-asInt_fold "" = 0
-asInt_fold ('-':xs) = -1 * (asInt_fold xs)
-asInt_fold str = foldl' step 0 str
+asIntFold :: String -> Int
+asIntFold "" = 0
+asIntFold ('-':xs) = -1 * asIntFold xs
+asIntFold str = foldl' step 0 str
   where
-    step acc ch = acc * 10 + (digitToInt ch)
+    step acc ch = acc * 10 + digitToInt ch
 
 -- 3. The asInt_fold function uses error, so its callers cannot handle errors. Rewrite the function to fix this problem
 type ErrorMessage = String
-asInt_either :: String -> Either ErrorMessage Int
-asInt_either "" = Left "Invalid input"
-asInt_either ('-':xs) = case asInt_either xs of
+asIntEither :: String -> Either ErrorMessage Int
+asIntEither "" = Left "Invalid input"
+asIntEither ('-':xs) = case asIntEither xs of
                           Left error -> Left error
                           Right result -> Right (-1 * result)
-asInt_either str = foldl' step (Right 0) str
+asIntEither str = foldl' step (Right 0) str
   where
     step (Right result) ch
-      | isDigit ch = Right (result * 10 + (digitToInt ch))
-      | otherwise = Left ("non-digit '" ++ ch:'\'':[])
+      | isDigit ch = Right (result * 10 + digitToInt ch)
+      | otherwise = Left ("non-digit '" ++ [ch,'\''])
     step (Left error) ch = Left error
 
 -- 4. The Prelude function concat concatenates a list of lists into a single list and has the following type:
@@ -65,7 +65,7 @@ concat' = foldr (++) []
 
 -- 5. Write your own definition of the standard takeWhile function, first using explicit recursion, and then foldr.
 takeWhile' :: (a -> Bool) -> [a] -> [a]
-takeWhile' predicate xs = foldr step [] xs
+takeWhile' predicate = foldr step []
   where
     step x acc
       | predicate x = x : acc
@@ -82,15 +82,15 @@ groupBy predicate (x:xs) = (x:ys) : groupBy predicate zs
 -- 7. How many of the following Prelude functions can you rewrite using list folds?
 --  any， cycle, words, unlines
 any :: (a -> Bool) -> [a] ->Bool
-any predicate xs = foldr step False xs
+any predicate = foldr step False
   where
     step x acc
       | predicate x = True
-      | otherwise = False || acc
+      | otherwise = acc
 
 cycle' :: [a] -> [a]
 cycle' [] = error "cycle with Empty list"
-cycle' xs = xs ++ (cycle xs)
+cycle' xs = xs ++ cycle xs
 
 words' :: String -> [String]
 words' xs = word : words' rest
@@ -98,6 +98,6 @@ words' xs = word : words' rest
     (word, rest) = span isSpace xs
 
 unlines' :: [String] -> String
-unlines' xs = foldr step "" xs
+unlines' = foldr step ""
   where
     step x acc = x ++ "/n" ++ acc

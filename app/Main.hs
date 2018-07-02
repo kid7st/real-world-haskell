@@ -8,7 +8,7 @@ import Ch5.Prettify
 main :: IO ()
 main = do
   print (JObject [("foo", JNumber 1), ("boo", JBool False)])
-  putStrLn ((replicate 10 '-') ++ "compact")
+  putStrLn (replicate 10 '-' ++ "compact")
 
   let value = renderJValue (JObject [("foo", JNumber 1), ("boo", JObject [("test", JBool True)])])
   putStrLn (compact value)
