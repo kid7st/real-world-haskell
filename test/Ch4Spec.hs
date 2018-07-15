@@ -2,7 +2,6 @@ module Ch4Spec (main, spec) where
 
 import Test.Hspec
 import Control.Exception (evaluate)
-import Test.QuickCheck
 
 import Ch4
 
@@ -30,23 +29,23 @@ spec = do
   describe "Chapter 4 EXCERCISES PART 2" $ do
     describe "1. and 2. Use a fold (choosing the appropriate fold will make your code much simpler) to rewrite and improve upon the asInt function from the earlier sectionExplicit Recursion." $ do
       it "should handle 101" $
-        asInt_fold "101" `shouldBe` 101
+        asIntFold "101" `shouldBe` 101
       it "should handle -31337" $
-        asInt_fold "-31337" `shouldBe` -31337
+        asIntFold "-31337" `shouldBe` -31337
       it "should handle ''" $
-        asInt_fold "" `shouldBe` 0
+        asIntFold "" `shouldBe` 0
       it "should handle -" $
-        asInt_fold "-" `shouldBe` 0
+        asIntFold "-" `shouldBe` 0
       it "should handle -3" $
-        asInt_fold "-3" `shouldBe` -3
+        asIntFold "-3" `shouldBe` -3
       it "should not handle 2.7" $
-        evaluate (asInt_fold "2.7") `shouldThrow` anyException
+        evaluate (asIntFold "2.7") `shouldThrow` anyException
 
     describe "3. The asInt_fold function uses error, so its callers cannot handle errors. Rewrite the function to fix this problem" $ do
       it "should handle 33" $
-        asInt_either "33" `shouldBe` Right 33
+        asIntEither "33" `shouldBe` Right 33
       it "should return an error" $
-        asInt_either "foo" `shouldBe` Left "non-digit 'f'"
+        asIntEither "foo" `shouldBe` Left "non-digit 'f'"
 
     describe "4. The Prelude function concat concatenates a list of lists into a single list and has the following typ: concat :: [[a]] -> [a]" $ do
       it "should concat list of strings" $
@@ -60,9 +59,9 @@ spec = do
       it "should take sub list from an infinite list" $
         takeWhile' (<5) [1, 2..] `shouldBe` [1, 2, 3, 4]
 
-    describe "6. The Data.List module defines a function, groupBy" $ do
+    describe "6. The Data.List module defines a function, groupBy" $
       it "should group equal number together" $
-        groupBy (==) [1, 1, 2, 3, 3, 1] `shouldBe` [[1, 1], [2], [3, 3], [1]]
+      groupBy (==) [1, 1, 2, 3, 3, 1] `shouldBe` [[1, 1], [2], [3, 3], [1]]
 
     describe "7. How many of the following Prelude functions can you rewrite using list folds? any， cycle, words, unlines" $ do
       it "any returns True" $
